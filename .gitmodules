@@ -1,0 +1,3 @@
+[submodule "typst-symbols"]
+	path = typst-symbols
+	url = https://github.com/megakite/typst-symbols
