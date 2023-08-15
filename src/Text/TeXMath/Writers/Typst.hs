@@ -39,7 +39,11 @@ writeTypst dt exprs =
   T.unwords $ map writeExp $ everywhere (mkT $ S.handleDownup dt) exprs
 
 writeExps :: [Exp] -> Text
-writeExps = T.intercalate " " . map writeExp
+writeExps es =
+  let exps = T.intercalate " " . map writeExp $ es
+  in case exps of
+      "" -> "#none"
+      t  -> t
 
 inParens :: Text -> Text
 inParens s = "(" <> s <> ")"
@@ -241,9 +245,7 @@ mkArray rows =
   T.intercalate "; " $ map mkRow rows
  where
    mkRow = T.intercalate ", " . map mkCell
-   mkCell es = case writeExps es of
-    "" -> "#none"
-    t -> t
+   mkCell = writeExps
 
 tshow :: Show a => a -> Text
 tshow = T.pack . show
