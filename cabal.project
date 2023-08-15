@@ -1,2 +1,3 @@
 packages: .
+          ./typst-symbols
 flags: +executable
