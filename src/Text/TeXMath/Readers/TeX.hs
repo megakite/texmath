@@ -721,7 +721,12 @@ binary c = do
      "\\frac"     -> EFraction NormalFrac <$> texToken <*> texToken
      "\\tfrac"    -> EFraction InlineFrac <$> texToken <*> texToken
      "\\dfrac"    -> EFraction DisplayFrac <$> texToken <*> texToken
+     "\\cfrac"    -> EFraction DisplayFrac <$> texToken <*> texToken
      "\\binom"    -> do
+       a <- texToken
+       b <- texToken
+       return $ EDelimited "(" ")" [Right (EFraction NoLineFrac a b)]
+     "\\dbinom"    -> do
        a <- texToken
        b <- texToken
        return $ EDelimited "(" ")" [Right (EFraction NoLineFrac a b)]
