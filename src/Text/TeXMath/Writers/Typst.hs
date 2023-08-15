@@ -39,17 +39,14 @@ writeTypst dt exprs =
   T.unwords $ map writeExp $ everywhere (mkT $ S.handleDownup dt) exprs
 
 writeExps :: [Exp] -> Text
-writeExps es =
-  let exps = T.intercalate " " . map writeExp $ es
-  in case exps of
-      "" -> "#none"
-      t  -> t
+writeExps = T.intercalate " " . map writeExp
 
 inParens :: Text -> Text
 inParens s = "(" <> s <> ")"
 
 inQuotes :: Text -> Text
-inQuotes s = "\"" <> s <> "\""
+inQuotes s = "\"" <> 
+  T.concatMap (\c -> if c == '"' then "\\\"" else T.singleton c) s <> "\""
 
 esc :: Text -> Text
 esc t =
@@ -82,6 +79,12 @@ writeExpB :: Exp -> Text
 writeExpB e =
   case writeExp e of
     "" -> "zws"
+    t -> t
+
+writeExpN :: Exp -> Text
+writeExpN e =
+  case writeExp e of
+    "" -> "#none"
     t -> t
 
 writeExp :: Exp -> Text
@@ -154,8 +157,8 @@ writeExp (EUnderover convertible b e1 e2) =
     (_, ESymbol TOver _) -> writeExp (EUnder convertible (EOver False b e2) e1)
     (ESymbol TUnder _, _) -> writeExp (EOver convertible (EUnder False b e1) e2)
     _ -> writeExpB b <> "_" <> writeExpS e1 <> "^" <> writeExpS e2
-writeExp (ESqrt e) = "sqrt(" <> writeExp e <> ")"
-writeExp (ERoot i e) = "root(" <> writeExp i <> ", " <> writeExp e <> ")"
+writeExp (ESqrt e) = "sqrt(" <> writeExpN e <> ")"
+writeExp (ERoot i e) = "root(" <> writeExpN i <> ", " <> writeExpN e <> ")"
 writeExp (ESpace width) =
   case (floor (width * 18) :: Int) of
     0 -> "zws"
@@ -242,9 +245,12 @@ writeExp (EArray _aligns rows)
 
 mkArray :: [[[Exp]]] -> Text
 mkArray rows =
-  T.intercalate "; " $ map mkRow rows
+  T.intercalate "; " $ map (mkRow . mkRows) rows
  where
-   mkRow = T.intercalate ", " . map mkCell
+   mkRow r = if head r /= "" || length r == 1
+               then T.intercalate ", " r
+               else T.intercalate ", " $ "#none" : tail r
+   mkRows = map mkCell
    mkCell = writeExps
 
 tshow :: Show a => a -> Text
