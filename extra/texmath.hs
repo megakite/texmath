@@ -128,10 +128,10 @@ urlUnencode = T.pack . unEscapeString . plusToSpace . T.unpack
 main :: IO ()
 main = do
   progname <- getProgName
-  let cgi = progname == "texmath-cgi"
-  if cgi
-     then runCGI
-     else runCommandLine
+  case progname of
+    "texmath-cgi" -> runCGI
+    "texmath-arg" -> runArg
+    _             -> runCommandLine
 
 runCommandLine :: IO ()
 runCommandLine = do
@@ -184,4 +184,22 @@ runCGI = do
                         (if inline
                             then DisplayInline
                             else DisplayBlock) writer v) ]
+  exitWith ExitSuccess
+
+runArg :: IO ()
+runArg = do
+  args <- getArgs
+  let (actions, inputs, _) = getOpt RequireOrder options args
+  opts <- foldl (>>=) (return def) actions
+  let inp = T.pack $ head inputs
+  reader <- case lookup (optIn opts) readers of
+                  Just r -> return r
+                  Nothing -> err False 3 "Unrecognised reader"
+  writer <- case lookup (optOut opts) writers of
+                  Just w -> return w
+                  Nothing -> err False 5 "Unrecognised writer"
+  case reader inp of
+        Left msg -> err False 1 msg
+        Right v  -> T.putStr $ ensureFinalNewline
+                             $ output (optDisplay opts) writer v
   exitWith ExitSuccess
