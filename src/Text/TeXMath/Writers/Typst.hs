@@ -240,7 +240,9 @@ mkArray rows =
   T.intercalate "; " $ map mkRow rows
  where
    mkRow = T.intercalate ", " . map mkCell
-   mkCell = writeExps
+   mkCell es = case writeExps es of
+    "" -> "#none"
+    t -> t
 
 tshow :: Show a => a -> Text
 tshow = T.pack . show
