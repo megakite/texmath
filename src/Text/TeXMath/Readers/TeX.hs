@@ -141,6 +141,9 @@ ignorable = skipMany $
     <|> label
     <|> tag
     <|> () <$ ctrlseq "nonumber"
+-- BEGIN for-oi-wiki
+    <|> () <$ ctrlseq "notag"
+-- END   for-oi-wiki
     <|> (skipMany1 space <?> "whitespace")
 
 comment :: TP ()
@@ -409,10 +412,15 @@ scaled cmd = do
        Nothing -> mzero
 
 endLine :: TP Char
-endLine = try $ do
-  symbol "\\\\"
-  optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
-  return '\n'
+endLine = try (do
+            symbol "\\\\"
+            optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
+            return '\n') 
+-- For OI-wiki
+      <|> try (do
+            symbol "\\cr"
+            optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
+            return '\n')
 
 -- Within environments provided by AMSmath, spaces are not allowed between
 -- the double-backslash command and its optional argument.
@@ -721,15 +729,17 @@ binary c = do
      "\\frac"     -> EFraction NormalFrac <$> texToken <*> texToken
      "\\tfrac"    -> EFraction InlineFrac <$> texToken <*> texToken
      "\\dfrac"    -> EFraction DisplayFrac <$> texToken <*> texToken
-     "\\cfrac"    -> EFraction DisplayFrac <$> texToken <*> texToken
      "\\binom"    -> do
        a <- texToken
        b <- texToken
        return $ EDelimited "(" ")" [Right (EFraction NoLineFrac a b)]
+-- BEGIN for-oi-wiki
+     "\\cfrac"    -> EFraction DisplayFrac <$> texToken <*> texToken
      "\\dbinom"    -> do
        a <- texToken
        b <- texToken
        return $ EDelimited "(" ")" [Right (EFraction NoLineFrac a b)]
+-- END   for-oi-wiki
      _            -> mzero
 
 texSymbol :: TP Exp
