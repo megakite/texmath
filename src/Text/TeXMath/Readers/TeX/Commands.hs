@@ -40,9 +40,7 @@ import Data.Ratio ((%))
 styleOps :: M.Map Text ([Exp] -> Exp)
 styleOps = M.fromList
           [ ("\\mathrm",     EStyled TextNormal)
-          , ("\\rm",       EStyled TextNormal)
           , ("\\mathup",     EStyled TextNormal)
-          , ("\\text",       EStyled TextNormal)
           , ("\\mathbf",     EStyled TextBold)
           , ("\\boldsymbol", EStyled TextBold)
           , ("\\bm",         EStyled TextBold)
@@ -53,11 +51,9 @@ styleOps = M.fromList
           , ("\\mathit",     EStyled TextItalic)
           , ("\\mathtt",     EStyled TextMonospace)
           , ("\\texttt",     EStyled TextMonospace)
-          , ("\\tt",         EStyled TextMonospace)
           , ("\\mathsf",     EStyled TextSansSerif)
           , ("\\mathsfup",   EStyled TextSansSerif)
           , ("\\mathbb",     EStyled TextDoubleStruck)
-          , ("\\Bbb",        EStyled TextDoubleStruck)
           , ("\\mathds",     EStyled TextDoubleStruck) -- mathds package
           , ("\\mathcal",    EStyled TextScript)
           , ("\\mathscr",    EStyled TextScript)
@@ -69,6 +65,12 @@ styleOps = M.fromList
           , ("\\mathbffrak", EStyled TextBoldFraktur)
           , ("\\mathbfcal",  EStyled TextBoldScript)
           , ("\\mathsfit",   EStyled TextSansSerifItalic)
+-- BEGIN for-oi-wiki
+          , ("\\Bbb",        EStyled TextDoubleStruck)
+          , ("\\rm",         EStyled TextNormal)
+          , ("\\text",       EStyled TextNormal)
+          , ("\\tt",         EStyled TextMonospace)
+-- END   for-oi-wiki
           ]
 
 textOps :: M.Map Text (Text -> Exp)
@@ -149,14 +151,12 @@ symbolMapOverrides ::  M.Map Text Exp
 symbolMapOverrides = M.fromList
   [ ("\\\n",ESpace (2 % 9))
   , ("\\ ",ESpace (2 % 9))
-  , ("\\space",ESpace (2 % 9))
   , ("\\!",ESpace ((-1) % 6))
   , ("\\,",ESpace (1 % 6))
   , ("\\:",ESpace (2 % 9))
   , ("\\;",ESpace (5 % 18))
   , ("\\>",ESpace (2 % 9))
   , ("\\AC",ESymbol Ord "\9190")
-  , ("\\And",ESymbol Bin "&")
   , ("\\Box",ESymbol Op "\9633")
   , ("\\Delta",EIdentifier "\916")
   , ("\\Diamond",ESymbol Op "\9671")
@@ -164,7 +164,6 @@ symbolMapOverrides = M.fromList
   , ("\\Im",ESymbol Ord "\8465")
   , ("\\Join",ESymbol Rel "\8904")
   , ("\\Lambda",EIdentifier "\923")
-  , ("\\LaTeX",EText TextNormal "LaTeX")
   , ("\\Lbrbrak",ESymbol Open "\12312")
   , ("\\Longleftarrow",ESymbol Rel "\8656")
   , ("\\Longleftrightarrow",ESymbol Rel "\8660")
@@ -181,7 +180,6 @@ symbolMapOverrides = M.fromList
   , ("\\Upsilon",EIdentifier "\933")
   , ("\\Xi",EIdentifier "\926")
   , ("\\^",ESymbol Ord "^")
-  , ("\\*",ESymbol Bin "*")
   , ("\\alpha",EIdentifier "\945")
   , ("\\amalg",ESymbol Bin "\8720")
   , ("\\arccos",EMathOperator "arccos")
@@ -323,6 +321,12 @@ symbolMapOverrides = M.fromList
   , ("\\wr",ESymbol Ord "\8768")
   , ("\\xi",EIdentifier "\958")
   , ("\\zeta",EIdentifier "\950")
+-- BEGIN for-oi-wiki
+  , ("\\*",ESymbol Bin "*")
+  , ("\\And",ESymbol Bin "&")
+  , ("\\LaTeX",EText TextNormal "LaTeX")
+  , ("\\space",ESpace (2 % 9))
+-- END   for-oi-wiki
   ]
 
 siUnitMap :: M.Map Text Exp

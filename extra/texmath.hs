@@ -128,10 +128,12 @@ urlUnencode = T.pack . unEscapeString . plusToSpace . T.unpack
 main :: IO ()
 main = do
   progname <- getProgName
+-- BEGIN for-oi-wiki
   case progname of
     "texmath-cgi" -> runCGI
     "texmath-arg" -> runArg
     _             -> runCommandLine
+-- END   for-oi-wiki
 
 runCommandLine :: IO ()
 runCommandLine = do
@@ -186,6 +188,7 @@ runCGI = do
                             else DisplayBlock) writer v) ]
   exitWith ExitSuccess
 
+-- BEGIN for-oi-wiki
 runArg :: IO ()
 runArg = do
   args <- getArgs
@@ -203,3 +206,4 @@ runArg = do
         Right v  -> T.putStr $ ensureFinalNewline
                              $ output (optDisplay opts) writer v
   exitWith ExitSuccess
+-- END   for-oi-wiki
