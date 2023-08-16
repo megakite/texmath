@@ -412,24 +412,27 @@ scaled cmd = do
        Nothing -> mzero
 
 endLine :: TP Char
-endLine = try (do
-            symbol "\\\\"
-            optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
-            return '\n') 
--- For OI-wiki
-      <|> try (do
-            symbol "\\cr"
-            optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
-            return '\n')
+endLine = try $ do
+  symbol "\\\\"
+  optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
+  return '\n'
 
 -- Within environments provided by AMSmath, spaces are not allowed between
 -- the double-backslash command and its optional argument.
 endLineAMS :: TP Char
-endLineAMS = lexeme $ try $ do
-  string "\\\\"
-  skipMany comment
-  optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
-  return '\n'
+endLineAMS = lexeme $ 
+      try (do
+          string "\\\\"
+          skipMany comment
+          optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
+          return '\n')
+-- BEGIN for-oi-wiki
+  <|> try (do
+          string "\\cr"
+          skipMany comment
+          optional inbrackets  -- can contain e.g. [1.0in] for a line height, not yet supported
+          return '\n')
+-- END   for-oi-wiki
 
 arrayLine :: TP ArrayLine
 arrayLine =
