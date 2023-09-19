@@ -218,6 +218,8 @@ writeExp (EScaled size e) =
   "#scale(x: " <> tshow (floor (100 * size) :: Int) <>
           "%, y: " <> tshow (floor (100 * size) :: Int) <>
           "%)[" <> writeExp e <> "]"
+writeExp (EDelimited "(" ")" [ Right (EFraction NoLineFrac x y) ]) =
+  "binom(" <> writeExp x <> ", " <> writeExp y <> ")"
 writeExp (EDelimited "(" ")" [Right (EArray _aligns rows)])
   | all (\row -> length row == 1) rows = -- vector
   "vec(" <> mkArray (transpose rows) <> ")"
@@ -254,12 +256,13 @@ writeExp (EArray _aligns rows)
 
 mkArray :: [[[Exp]]] -> Text
 mkArray rows =
-  T.intercalate "; " $ map (mkRow . mkRows) rows
+  T.intercalate "; " $ map mkRow rows
  where
-   mkRow r = if head r /= "" || length r == 1
-               then T.intercalate ", " r
-               else T.intercalate ", " $ "#none" : tail r
-   mkRows = map mkCell
+   mkRow = T.intercalate ", " . mkCells . map mkCell
+   mkCells cs =
+     case cs of
+       ("":rest) -> "#none" : rest
+       _ -> cs
    mkCell = writeExps
 
 tshow :: Show a => a -> Text
