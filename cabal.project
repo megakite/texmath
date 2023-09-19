@@ -1,5 +1,2 @@
 packages: .
--- BEGIN for-oi-wiki
-          ./typst-symbols
--- END   for-oi-wiki
 flags: +executable
