@@ -91,6 +91,7 @@ data Exp =
                   -- the same length.
   | EText TextType T.Text  -- ^ Some normal text, possibly styled.
   | EStyled TextType [Exp] -- ^  A group of styled expressions.
+  | EColored T.Text Exp -- ^ A colored expression.
   deriving (Show, Read, Eq, Ord, Data, Typeable)
 
 -- | An @EDelimited@ element contains a string of ordinary expressions

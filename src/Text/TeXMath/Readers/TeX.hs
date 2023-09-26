@@ -185,6 +185,9 @@ command = try $ do
        && c /= "\\operatorname" -- handled in expr
   choice
     [ text c
+-- BEGIN for-oi-wiki
+    , colored c
+-- END   for-oi-wiki
     , styled c
     , root c
     , xspace c
@@ -410,6 +413,19 @@ scaled cmd = do
   case S.getScalerValue cmd of
        Just r  -> EScaled r <$> (basicEnclosure <|> operator)
        Nothing -> mzero
+
+-- BEGIN for-oi-wiki
+-- NOTE: this is a partial implementation.
+-- It is working for now, but not supposed to handle all cases correctly.
+colored :: Text -> TP Exp
+colored "\\color" = do
+  color <- texToken
+  e <- texToken 
+  case expToOperatorName color of
+    Just c  -> return $ EColored c e
+    Nothing -> return $ EColored "black" e
+colored _ = mzero
+-- END   for-oi-wiki
 
 endLine :: TP Char
 endLine = try $ do

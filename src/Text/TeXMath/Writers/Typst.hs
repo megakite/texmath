@@ -212,12 +212,16 @@ writeExp (EStyled ttype es) =
        TextBoldScript -> "bold" <> inParens ("cal" <> inParens contents)
        TextBoldFraktur -> "bold" <> inParens ("frak" <> inParens contents)
        TextSansSerifItalic -> "italic" <> inParens ("sans" <> inParens contents)
-writeExp (EBoxed e) = "#box([" <> writeExp e <> "])"
-writeExp (EPhantom e) = "#hide[" <> writeExp e <> "]"
+writeExp (EBoxed e) = "#box([$" <> writeExp e <> "$])"
+writeExp (EPhantom e) = "#hide[$" <> writeExp e <> "$]"
 writeExp (EScaled size e) =
   "#scale(x: " <> tshow (floor (100 * size) :: Int) <>
           "%, y: " <> tshow (floor (100 * size) :: Int) <>
-          "%)[" <> writeExp e <> "]"
+          "%)[$" <> writeExp e <> "$]"
+-- BEGIN for-oi-wiki
+writeExp (EColored color e) = 
+  "#text(fill: " <> T.toLower color <> ")[$" <> writeExp e <> "$]"
+-- END   for-oi-wiki
 writeExp (EDelimited "(" ")" [ Right (EFraction NoLineFrac x y) ]) =
   "binom(" <> writeExp x <> ", " <> writeExp y <> ")"
 writeExp (EDelimited "(" ")" [Right (EArray _aligns rows)])
