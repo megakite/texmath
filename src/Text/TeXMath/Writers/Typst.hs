@@ -219,8 +219,10 @@ writeExp (EScaled size e) =
           "%, y: " <> tshow (floor (100 * size) :: Int) <>
           "%)[$" <> writeExp e <> "$]"
 -- BEGIN for-oi-wiki
+-- NOTE: this is a partial and non-standard implementation.
+-- It is working for now, but not supposed to handle all cases in the near future.
 writeExp (EColored color e) = 
-  "#text(fill: " <> T.toLower color <> ")[$" <> writeExp e <> "$]"
+  "#text(fill: " <> T.toLower color <> ")[$" <> writeExp e <> "$] "
 -- END   for-oi-wiki
 writeExp (EDelimited "(" ")" [ Right (EFraction NoLineFrac x y) ]) =
   "binom(" <> writeExp x <> ", " <> writeExp y <> ")"
@@ -229,6 +231,11 @@ writeExp (EDelimited "(" ")" [Right (EArray _aligns rows)])
   "vec(" <> mkArray (transpose rows) <> ")"
 writeExp (EDelimited "(" ")" [Right (EArray _aligns [[xs],[ys]])]) =
   "binom(" <> writeExps xs <> ", " <> writeExps ys <> ")"
+-- BEGIN for-oi-wiki
+-- Process matrices with empty delimiters.
+writeExp (EDelimited "" "" [Right (EArray _aligns rows)]) =
+  "mat(delim: #none, " <> mkArray rows <> ")"
+-- END   for-oi-wiki
 writeExp (EDelimited "(" ")" [Right (EArray _aligns rows)]) =
   "mat(delim: \"(\", " <> mkArray rows <> ")"
 writeExp (EDelimited "[" "]" [Right (EArray _aligns rows)]) =
@@ -246,6 +253,12 @@ writeExp (EDelimited "\x2225" "\x2225" [Right (EArray _aligns rows)]) =
 writeExp (EDelimited op "" [Right (EArray [AlignLeft, AlignLeft] rows)]) =
   "cases" <> inParens("delim: " <> inQuotes op <> mconcat (map toCase rows))
    where toCase = (", " <>) . T.intercalate " & " . map writeExps
+-- BEGIN for-oi-wiki
+-- Support cases without cases (&).
+writeExp (EDelimited op "" [Right (EArray _aligns rows)]) =
+  "cases" <> inParens ("delim: " <> inQuotes op <> mconcat (map toCase rows))
+   where toCase = (", " <>) . T.intercalate " " . map writeExps
+-- END   for-oi-wiki
 writeExp (EDelimited open close es) =
   if isDelim open && isDelim close
      then "lr" <> inParens (open <> body <> close)

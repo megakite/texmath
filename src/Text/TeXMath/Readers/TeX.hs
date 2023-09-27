@@ -415,8 +415,8 @@ scaled cmd = do
        Nothing -> mzero
 
 -- BEGIN for-oi-wiki
--- NOTE: this is a partial implementation.
--- It is working for now, but not supposed to handle all cases correctly.
+-- NOTE: this is a partial and non-standard implementation.
+-- It is working for now, but not supposed to handle all cases in the near future.
 colored :: Text -> TP Exp
 colored "\\color" = do
   color <- texToken
@@ -518,10 +518,12 @@ matrixWith :: Text -> Text -> TP Exp
 matrixWith opendelim closedelim = do
   lines' <- sepEndBy arrayLine endLineAMS
   let aligns = alignsFromRows AlignCenter lines'
-  return $ if T.null opendelim && T.null closedelim
-              then EArray aligns lines'
-              else EDelimited opendelim closedelim
+-- BEGIN for-oi-wiki
+-- Always convert a matrix into EDelimited,
+-- even if there are no delimiters.
+  return $ EDelimited opendelim closedelim
                        [Right $ EArray aligns lines']
+-- END   for-oi-wiki
 
 stdarray :: TP Exp
 stdarray = do
