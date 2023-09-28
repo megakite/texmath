@@ -220,7 +220,7 @@ writeExp (EScaled size e) =
           "%)[$" <> writeExp e <> "$]"
 -- BEGIN for-oi-wiki
 -- NOTE: this is a partial and non-standard implementation.
--- It is working for now, but not supposed to handle all cases in the near future.
+-- It is working for now, but not supposed to handle all cases correctly.
 writeExp (EColored color e) = 
   "#text(fill: " <> T.toLower color <> ")[$" <> writeExp e <> "$] "
 -- END   for-oi-wiki
@@ -252,7 +252,7 @@ writeExp (EDelimited "\x2225" "\x2225" [Right (EArray _aligns rows)]) =
   "mat(delim: \"||\", " <> mkArray rows <> ")"
 writeExp (EDelimited op "" [Right (EArray [AlignLeft, AlignLeft] rows)]) =
   "cases" <> inParens("delim: " <> inQuotes op <> mconcat (map toCase rows))
-   where toCase = (", " <>) . T.intercalate " & " . map writeExps
+   where toCase = (", " <>) . T.intercalate " &quad " . map writeExps
 -- BEGIN for-oi-wiki
 -- Support cases without cases (&).
 writeExp (EDelimited op "" [Right (EArray _aligns rows)]) =
