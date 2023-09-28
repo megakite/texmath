@@ -416,7 +416,7 @@ scaled cmd = do
 
 -- BEGIN for-oi-wiki
 -- NOTE: this is a partial and non-standard implementation.
--- It is working for now, but not supposed to handle all cases in the near future.
+-- It is working for now, but not supposed to handle all cases correctly.
 colored :: Text -> TP Exp
 colored "\\color" = do
   color <- texToken
