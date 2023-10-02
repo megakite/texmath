@@ -408,11 +408,31 @@ delimitedImplicit = try $ do
   _ <- closer
   return $ EDelimited (T.singleton openc) (T.singleton closec) contents
 
+-- BEGIN for-oi-wiki
+-- Use lr() on scaled enclosures 
+delimitedImplicit' :: Text -> TP Exp
+delimitedImplicit' cmd = try $ do
+  openc <- lexeme $ oneOf "()[]|"
+  closec <- case openc of
+                 '(' -> return ')'
+                 '[' -> return ']'
+                 '|' -> return '|'
+                 _   -> mzero
+  let closer = lexeme $ string $ (T.unpack cmd) ++ [closec]
+  contents <- concat <$>
+              many (try $ ((:[]) . Left  <$> middle)
+                      <|> (map Right . unGrouped <$>
+                             many1Exp (notFollowedBy closer *> expr)))
+  _ <- closer
+  return $ EDelimited (T.singleton openc) (T.singleton closec) contents
+
 scaled :: Text -> TP Exp
 scaled cmd = do
   case S.getScalerValue cmd of
-       Just r  -> EScaled r <$> (basicEnclosure <|> operator)
+       Just r  -> delimitedImplicit' cmd
+              <|> EScaled r <$> (operator <|> basicEnclosure)
        Nothing -> mzero
+-- END   for-oi-wiki
 
 -- BEGIN for-oi-wiki
 -- NOTE: this is a partial and non-standard implementation.
@@ -420,7 +440,7 @@ scaled cmd = do
 colored :: Text -> TP Exp
 colored "\\color" = do
   color <- texToken
-  e <- texToken 
+  e <- texToken
   case expToOperatorName color of
     Just c  -> return $ EColored c e
     Nothing -> return $ EColored "black" e
@@ -436,7 +456,7 @@ endLine = try $ do
 -- Within environments provided by AMSmath, spaces are not allowed between
 -- the double-backslash command and its optional argument.
 endLineAMS :: TP Char
-endLineAMS = lexeme $ 
+endLineAMS = lexeme $
       try (do
           string "\\\\"
           skipMany comment
