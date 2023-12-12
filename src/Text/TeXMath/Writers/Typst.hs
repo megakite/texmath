@@ -28,7 +28,8 @@ import qualified Text.TeXMath.Shared as S
 import Typst.Symbols (typstSymbols)
 import Data.Generics (everywhere, mkT)
 import Data.Text (Text)
-import Data.Char (isDigit, isAlpha)
+import Data.Char (isDigit, isAlpha, isAscii)
+import Data.Maybe (fromMaybe)
 
 -- import Debug.Trace
 -- tr' x = trace (show x) x
@@ -64,6 +65,11 @@ esc t =
     needsEscape '(' = True
     needsEscape ')' = True
     needsEscape '_' = True
+    needsEscape '*' = True
+    needsEscape '^' = True
+    needsEscape '"' = True
+    needsEscape '/' = True
+    needsEscape '\\' = True
     needsEscape _ = False
 
 escInQuotes :: Text -> Text
@@ -98,8 +104,10 @@ writeExpN e =
 
 writeExp :: Exp -> Text
 writeExp (ENumber s) = s
-writeExp (ESymbol _t s) =
-  maybe (esc s) id $ M.lookup s typstSymbolMap
+writeExp (ESymbol _t s)
+  | T.all isAscii s = esc s  -- use '+' not 'plus'
+  | s == "\x2212" = "-" -- use '-' not 'minus'
+  | otherwise = fromMaybe (esc s) $ M.lookup s typstSymbolMap
 writeExp (EIdentifier s) =
   if T.length s == 1
      then writeExp (ESymbol Ord s)
@@ -212,8 +220,8 @@ writeExp (EStyled ttype es) =
        TextBoldScript -> "bold" <> inParens ("cal" <> inParens contents)
        TextBoldFraktur -> "bold" <> inParens ("frak" <> inParens contents)
        TextSansSerifItalic -> "italic" <> inParens ("sans" <> inParens contents)
-writeExp (EBoxed e) = "#box([$" <> writeExp e <> "$])"
-writeExp (EPhantom e) = "#hide[$" <> writeExp e <> "$]"
+writeExp (EBoxed e) = "#box(stroke: black, inset: 3pt, [$ " <> writeExp e <> " $])"
+writeExp (EPhantom e) = "#hide[" <> writeExp e <> "]"
 writeExp (EScaled size e) =
   "#scale(x: " <> tshow (floor (100 * size) :: Int) <>
           "%, y: " <> tshow (floor (100 * size) :: Int) <>
@@ -286,4 +294,6 @@ tshow :: Show a => a -> Text
 tshow = T.pack . show
 
 typstSymbolMap :: M.Map Text Text
-typstSymbolMap = M.fromList [(s,name) | (name, _, s) <- typstSymbols]
+typstSymbolMap = M.fromList $
+  ("\776", "dot.double") -- see #231
+  : [(s,name) | (name, _, s) <- typstSymbols]
