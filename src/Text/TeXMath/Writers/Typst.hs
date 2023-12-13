@@ -272,7 +272,7 @@ writeExp (EDelimited open close es) =
   if isDelim open && isDelim close
      then "lr" <> inParens (open <> body <> close)
      else esc open <> body <> esc close
-  where fromDelimited (Left e)  = e
+  where fromDelimited (Left e)  = "mid(" <> e <> ")"
         fromDelimited (Right e) = writeExp e
         isDelim c = c `elem` ["(",")","[","]","{","}","|","||"]
         body = T.unwords (map fromDelimited es)
