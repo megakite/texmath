@@ -287,7 +287,7 @@ mkArray rows =
    mkRow = T.intercalate ", " . mkCells . map mkCell
    mkCells cs =
     case cs of
-      ("":[]) -> [""]
+      ("":[]) -> if maximum (map length rows) == 1 then ["#none"] else [""]
       ("":rest) -> "#none" : rest
       _ -> cs
    mkCell = writeExps
