@@ -59,6 +59,10 @@ esc t =
       | otherwise = T.singleton c
     needsEscape '[' = True
     needsEscape ']' = True
+-- BEGIN for-oi-wiki
+    needsEscape '{' = True
+    needsEscape '}' = True
+-- END   for-oi-wiki
     needsEscape '|' = True
     needsEscape '#' = True
     needsEscape '$' = True
@@ -155,6 +159,9 @@ writeExp (EOver _convertible b e1) =
     ESymbol Accent "\x2192" -> "->" <> inParens (writeExp b)
     ESymbol Accent "\x2190" -> "<-" <> inParens (writeExp b)
     ESymbol Accent "\8407" -> "arrow" <> inParens (writeExp b)
+-- BEGIN for-oi-wiki
+    ESymbol Accent "\8254" -> "overline(" <> writeExp b <> ")"
+-- END   for-oi-wiki
     ESymbol TOver "\9182" -> "overbrace(" <> writeExp b <> ")"
     ESymbol TOver "\9140" -> "overbracket(" <> writeExp b <> ")"
     ESymbol TOver "\175" -> "overline(" <> writeExp b <> ")"
